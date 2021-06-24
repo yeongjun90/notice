@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="../js/common.js"></script>
+<script>
+	$(function() {
+		notice();
+	})
+
+	function notice() {
+		var notice_id = $.getP("notice_id");
+
+		$.ajax({
+			url : "/NoticePro/notice.json",
+			dataType : 'json',
+			data : {
+				notice_id : notice_id,
+			},
+			type : 'POST',
+			success : function(data, textStats, jqXHR) {
+				console.log(data);
+				var notice = data;
+				for (var i = 0; i < notice.fileList.length; i++) {
+					$("#filelist")
+							.append(
+									"<a onclick=file_download('"
+											+ notice.fileList[i].file_name
+											+ "');>"
+											+ notice.fileList[i].original_name
+											+ "</a>");
+				}
+				$("#title").html(notice.title);
+				$("#content").html(notice.content);
+				$("#wdate").html(notice.wdate);
+				$("#lastupdate").html(notice.lastupdate);
+			}
+		})
+	}
+
+	function file_download(file_name) {
+		window.location.href = "/NoticePro/file_download.htm?file_name="
+				+ file_name;
+	}
+</script>
+</head>
+<body>
+	<div id="notice_tb">
+		<table>
+			<tr>
+				<th>제목</th>
+				<td id="title"></td>
+			</tr>
+			<tr>
+				<th>내용</th>
+				<td id="content"></td>
+			</tr>
+			<tr>
+				<th>첨부목록</th>
+				<td><ul id="filelist"></ul></td>
+			</tr>
+			<tr>
+				<th>작성일</th>
+				<td id="wdate"></td>
+			</tr>
+			<tr>
+				<th>최종수정일</th>
+				<td id="lastupdate"></td>
+			</tr>
+		</table>
+	</div>
+	<div>
+		<button onclick="javascript:location.href='noticeList.html'">목록</button>
+	</div>
+</body>
+</html>

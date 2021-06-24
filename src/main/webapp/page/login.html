@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script>
+	function login() {
+		var id = $("#id").val();
+		var pwd = $("#pwd").val();
+
+		$.ajax({
+			url : "/NoticePro/login_check.json",
+			dataType : 'json',
+			data : {
+				id : id,
+				pwd : pwd
+			},
+			type : 'POST',
+			success : function(data, textStats, jqXHR) {
+				if (data.result == "ok") {
+					alert("성공");
+					location.href = "noticeList.html";
+				} else {
+					alert("실패");
+					return false;
+				}
+			}
+		})
+	}
+</script>
+</head>
+<body>
+	<div>
+		<input type="text" id="id" placeholder="아이디" /> <input
+			type="password" id="pwd" placeholder="비밀번호" />
+		<button onclick="login();">로그인</button>
+	</div>
+</body>
+</html>

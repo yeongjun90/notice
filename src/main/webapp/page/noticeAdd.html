@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="../js/common.js"></script>
+<script>
+	var files = new Array();
+	$(function() {
+		$('#notice_tb input[type="file"]')
+				.on(
+						'change',
+						function() {
+							if (this.files.length > 0) {
+								var fileNames = "";
+								var dflt;
+								for (var i = 0; i < this.files.length; i++) {
+									fileName = this.files[i].name;
+									files.push(this.files[i]);
+									$("#filelist")
+											.append(
+													"<li><span>"
+															+ fileName
+															+ "</span><span onclick=file_drop(this);> X </span></li>");
+								}
+							}
+
+						});
+	})
+
+	function notice_add() {
+		var title = $("#title").val();
+		var content = $("#content").val();
+
+		$.ajax({
+			url : "/NoticePro/notice_add.json",
+			dataType : 'json',
+			data : {
+				title : title,
+				content : content
+			},
+			type : 'POST',
+			success : function(data, textStats, jqXHR) {
+				console.log(data);
+				var notice_id = data.notice_id;
+				for (var i = 0; i < files.length; i++) {
+					var file = files[i];
+					file_add(file, notice_id);
+				}
+			}
+		})
+	}
+
+	var uu = function(e) {
+
+	};
+
+	function file_add(file, notice_id) {
+		var xhr = new XMLHttpRequest();
+		xhr.upload.onprogress = uu;
+
+		if (xhr.upload) {
+			xhr.onreadystatechange = function(e) {
+				if (xhr.readyState == 4) {
+					if (xhr.status == 200) {
+						var o = jQuery.parseJSON(xhr.responseText);
+						notice_file_add(o.file_id, notice_id);
+					}
+				}
+			};
+			xhr.open("POST", "/NoticePro/file_add.json", true);
+			var data = new FormData();
+			data.append('file', file);
+
+			xhr.send(data);
+
+		}
+
+	}
+
+	function notice_file_add(file_id, notice_id) {
+		$.ajax({
+			url : "/NoticePro/notice_file_add.json",
+			dataType : 'json',
+			data : {
+				file_id : file_id,
+				notice_id : notice_id
+			},
+			type : 'POST',
+			success : function(data, textStats, jqXHR) {
+				if (data.result == "ok") {
+					alert("성공");
+					location.href = "noticeList.html";
+				} else {
+					alert("실패");
+					return false;
+				}
+			}
+		})
+	}
+
+	function file_btn() {
+		$("#files").click();
+	}
+
+	function file_drop(ele) {
+		index = $(ele).parent().index();
+		$("#filelist li").eq(index).remove();
+		files.splice(index, 1);
+		for (var i = 0; i < files.length; i++) {
+			// 			alert(files[i].name);
+		}
+	}
+</script>
+</head>
+<body>
+	<div id="notice_tb">
+		<table>
+			<tr>
+				<th>제목</th>
+				<td><input type="text" id="title" /></td>
+			</tr>
+			<tr>
+				<th>내용</th>
+				<td><textarea rows="10" cols="20" id="content"></textarea></td>
+			</tr>
+			<tr>
+				<th>파일첨부</th>
+				<td colspan="3" class="board_files"><span class="file_name"><button
+							onclick="file_btn();">파일선택</button> <input id="files" type="file"
+						name="fileselect[]" multiple style="display: none;" /> </span></td>
+			</tr>
+			<tr>
+				<th>첨부목록</th>
+				<td><ul id="filelist"></ul></td>
+			</tr>
+		</table>
+	</div>
+	<div>
+		<button onclick="notice_add();">등록</button>
+		<button onclick="javascript:location.href='noticeList.html'">취소</button>
+	</div>
+</body>
+</html>

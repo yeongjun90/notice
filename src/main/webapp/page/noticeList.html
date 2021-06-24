@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="../js/common.js"></script>
+<link rel="stylesheet" type="text/css" href="../css/common.css" />
+<script>
+	var page;
+	$(function() {
+		if ($.getP("page")) {
+			page = $.getP("page");
+		} else {
+			page = 1;
+		}
+		noticeList(page);
+	})
+
+	function noticeList(page) {
+		$
+				.ajax({
+					url : "/NoticePro/noticeList.json",
+					dataType : 'json',
+					data : {
+						page : page
+					},
+					type : 'POST',
+					success : function(data, textStats, jqXHR) {
+						console.log(data);
+						var noticeList = data.noticeList;
+						for (var i = 0; i < noticeList.length; i++) {
+							var notice = noticeList[i];
+							$("#noticeList")
+									.append(
+											"<tr><td>"
+													+ notice.notice_id
+													+ "</td><td><a href=notice.html?notice_id="
+													+ notice.notice_id
+													+ ">"
+													+ notice.title
+													+ "</a>"
+													+ "</td><td>"
+													+ notice.wdate
+													+ "</td><td>"
+													+ notice.id
+													+ "</td><td>"
+													+ notice.lastupdate
+													+ "</td><td><button onclick=javascript:location.href='noticeUpdate.html?notice_id="
+													+ notice.notice_id
+													+ "'>수정</button></td><td><button onclick=notice_delete('"
+													+ notice.notice_id
+													+ "');>삭제</button></td></tr>");
+						}
+						drawPage("pagination", data.pagemap);
+					}
+				})
+	}
+
+	function notice_delete(notice_id) {
+		if (confirm("삭제할까요?")) {
+			$.ajax({
+				url : "/NoticePro/notice_delete.json",
+				dataType : 'json',
+				data : {
+					notice_id : notice_id
+				},
+				type : 'POST',
+				success : function(data, textStats, jqXHR) {
+					if (data.result == "ok") {
+						alert("성공");
+						location.reload();
+					} else {
+						alert("실패");
+						return false;
+					}
+				}
+			})
+		}
+	}
+</script>
+</head>
+<body>
+	<div>
+		<table>
+			<tr>
+				<th>번호</th>
+				<th>제목</th>
+				<th>작성일</th>
+				<th>작성자</th>
+				<th>최종수정일</th>
+			</tr>
+			<tbody id="noticeList"></tbody>
+		</table>
+	</div>
+	<div>
+		<ul id="pagination" class="flex"></ul>
+	</div>
+	<div>
+		<a href="noticeAdd.html">공지사항 등록</a>
+	</div>
+</body>
+</html>
